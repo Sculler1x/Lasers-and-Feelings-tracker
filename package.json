@@ -2,7 +2,7 @@
   "name": "lasers-tracker",
   "version": "1.0.0",
   "description": "Collaborative Lasers & Feelings tracker",
-  "main": "App.jsx",
+  "main": "App.js",
   "scripts": {
     "start": "parcel index.html",
     "build": "parcel build index.html --dist-dir dist"
