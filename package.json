@@ -1,1 +1,19 @@
-
+{
+  "name": "lasers-tracker",
+  "version": "1.0.0",
+  "description": "Collaborative Lasers & Feelings tracker",
+  "main": "App.jsx",
+  "scripts": {
+    "start": "parcel index.html",
+    "build": "parcel build index.html --dist-dir dist"
+  },
+  "dependencies": {
+    "firebase": "^10.0.0",
+    "lucide-react": "^18.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "parcel": "^2.10.3"
+  }
+}
