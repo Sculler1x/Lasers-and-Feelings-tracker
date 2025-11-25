@@ -243,7 +243,7 @@ const DiceRoller = React.memo(({ character, updateRollState }) => {
                         ))}
                     </div>
                     <p className="text-lg font-semibold border-b border-white/30 pb-2 mb-2">Successes: {rollResult.successes}</p>
-                    <p className="text-base italic">{rollResult.message}</p>
+                    <p className="base italic">{rollResult.message}</p>
                 </div>
             )}
         </div>
