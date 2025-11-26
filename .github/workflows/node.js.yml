@@ -40,9 +40,9 @@ jobs:
       - name: Deploy to Firebase
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          # Your Firebase Project ID
+          # --- CHANGE: Using the JSON Service Account Secret ---
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_LASERS }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_CREDENTIALS }}' # Uses the new JSON secret
           projectId: lasers-and-feelings-685e4 # Your specific project ID
           channelId: live
           target: hosting
