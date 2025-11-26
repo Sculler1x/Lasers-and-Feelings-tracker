@@ -9,6 +9,13 @@ on:
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
+    
+    # --- FIX: Explicitly grant permissions for GitHub Actions deployment ---
+    permissions:
+      contents: write # Allows the action to check out and deploy content
+      id-token: write # Required for modern OIDC authentication methods
+    # ----------------------------------------------------------------------
+
     steps:
       # 1. Checkout the source code from the repository
       - name: Checkout code
