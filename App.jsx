@@ -138,7 +138,7 @@ const LoadingScreen = ({ message, error }) => (
 const SessionSetup = ({ setMode, setInputCode, inputCode, handleJoinSession, handleCreateSession, error }) => (
     <div className="flex items-center justify-center min-h-screen bg-gray-900 p-4">
         <div className="w-full max-w-md p-8 bg-gray-800 rounded-xl shadow-2xl border-2 border-gray-700 space-y-6">
-            <h1 className="text-3xl font-extrabold text-red-400 text-center tracking-wide font-mono">JOIN THE RAPTOR CREW</h1>
+            <h1 className="text-3xl font-extrabold text-red-400 text-center tracking-wide font-sans">JOIN THE RAPTOR CREW</h1>
             {error && (
                 <div className="bg-red-800/80 p-3 rounded-lg text-white text-sm flex items-center">
                     <AlertTriangle className="mr-2 w-4 h-4" /> {error}
