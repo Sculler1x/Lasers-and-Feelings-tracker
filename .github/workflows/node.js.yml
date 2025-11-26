@@ -1,0 +1,41 @@
+name: Deploy to Firebase Hosting
+
+on:
+  push:
+    branches:
+      - main # Deploy when code is pushed to the main branch
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Checkout the source code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Set up Node.js environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      # 3. Install dependencies (React, Firebase, Parcel, etc.)
+      - name: Install dependencies
+        run: npm install
+
+      # 4. Run the build command (creates the /dist folder)
+      - name: Build site
+        run: npm run build
+
+      # 5. Deploy the compiled files to Firebase Hosting
+      - name: Deploy to Firebase
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          # Your Firebase Project ID
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_LASERS }}'
+          projectId: lasers-and-feelings-685e4 # Your specific project ID
+          channelId: live
+          target: hosting
