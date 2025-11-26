@@ -9,45 +9,19 @@ import { AlertTriangle, Zap, Heart, RefreshCw, Loader, Ship, User, Globe, Code, 
 // NOTE: We update this to match your actual Firebase Project ID for path consistency.
 const appId = 'lasers-and-feelings-685e4'; // Your Firebase Project ID
 
-// === SAFE FIREBASE CONFIGURATION READER ===
-// This function reads the environment variables safely without crashing the browser.
-function getFirebaseConfig() {
-    // If running in a Node environment (like Vercel build step), use process.env
-    // Otherwise, assume the values are undefined.
-    const env = typeof process !== 'undefined' ? process.env : {};
-
-    const config = {
-        apiKey: env.REACT_APP_API_KEY, 
-        authDomain: env.REACT_APP_AUTH_DOMAIN,
-        projectId: env.REACT_APP_PROJECT_ID,
-        storageBucket: env.REACT_APP_STORAGE_BUCKET,
-        messagingSenderId: env.REACT_APP_MESSAGING_SENDER_ID,
-        appId: env.REACT_APP_APP_ID,
-    };
-    
-    // Check if the necessary keys were successfully injected by Vercel
-    if (!config.apiKey || !config.projectId) {
-        // If they are not, Vercel failed to inject them, so we throw a user-friendly error.
-        throw new Error("Vercel Environment Variables Missing or Not Loaded. Please confirm all 6 REACT_APP_ variables are set in Vercel.");
-    }
-    return config;
-}
-
-// Global variable access point (must be outside the component)
-let firebaseConfig = {};
-let isConfigValid = false;
-
-try {
-    firebaseConfig = getFirebaseConfig();
-    isConfigValid = true;
-} catch (e) {
-    // If getFirebaseConfig fails, set the error state globally for the component to pick up
-    console.error("Critical Firebase Config Error:", e.message);
-    isConfigValid = false;
-    // We intentionally ignore the specific error content here as it will be caught by React
-}
-// --- END SAFE FIREBASE CONFIGURATION READER ---
-
+// === HARDCODED FIREBASE CONFIGURATION (TROUBLESHOOTING ONLY) ===
+// This configuration bypasses the Vercel environment variable injection process.
+const firebaseConfig = {
+    // These keys were provided by the user in a previous step
+    apiKey: "AIzaSyA-42tUYSz40xzLtw3gQMIlBbWYkb0qHXY",
+    authDomain: "lasers-and-feelings-685e4.firebaseapp.com",
+    projectId: "lasers-and-feelings-685e4",
+    storageBucket: "lasers-and-feelings-685e4.firebasestorage.app",
+    messagingSenderId: "332708070784",
+    appId: "1:332708070784:web:494e23e6fa88a6dd072d65",
+    // Ensure all 6 required fields are present
+};
+// === END HARDCODED CONFIGURATION ===
 
 const initialAuthToken = null; 
 
@@ -138,7 +112,7 @@ const LoadingScreen = ({ message, error }) => (
 const SessionSetup = ({ setMode, setInputCode, inputCode, handleJoinSession, handleCreateSession, error }) => (
     <div className="flex items-center justify-center min-h-screen bg-gray-900 p-4">
         <div className="w-full max-w-md p-8 bg-gray-800 rounded-xl shadow-2xl border-2 border-gray-700 space-y-6">
-            <h1 className="text-3xl font-extrabold text-red-400 text-center tracking-wide font-sans">JOIN THE RAPTOR CREW</h1>
+            <h1 className="text-3xl font-extrabold text-red-400 text-center tracking-wide font-mono">JOIN THE RAPTOR CREW</h1>
             {error && (
                 <div className="bg-red-800/80 p-3 rounded-lg text-white text-sm flex items-center">
                     <AlertTriangle className="mr-2 w-4 h-4" /> {error}
@@ -200,7 +174,7 @@ const DiceRoller = React.memo(({ character, updateRollState }) => {
 
     return (
         <div className="p-6 bg-gray-800 rounded-xl shadow-2xl border-2 border-purple-500/30 space-y-4">
-            <h2 className="text-2xl font-extrabold mb-4 flex items-center text-purple-400 border-b border-purple-500/50 pb-2 font-mono">
+            <h2 className="2xl font-extrabold mb-4 flex items-center text-purple-400 border-b border-purple-500/50 pb-2 font-mono">
                 <Globe className="w-5 h-5 mr-2" /> ACTION ROLL
             </h2>
 
@@ -316,19 +290,15 @@ export default function App() {
 
     // --- FIREBASE INITIALIZATION & AUTH ---
     useEffect(() => {
-        // Clear any previous general error message if we start initialization
-        if (error === "Firebase API Key is invalid or project ID is incorrect. Please update firebaseConfig.") {
-             setError(null);
+        // --- CRITICAL CHECK: HARDCODED CONFIGURATION CHECK ---
+        // Since we are troubleshooting Vercel injection failure, we rely on the hardcoded keys here.
+        if (!firebaseConfig.apiKey) {
+            setError("Configuration Error: Firebase API Key is missing. Ensure keys are hardcoded in App.jsx or correctly injected via Vercel Environment Variables.");
+            setLoading(false);
+            return;
         }
 
         try {
-            // CRITICAL CHECK: If the Vercel build failed to inject the environment variables, 
-            // the 'isConfigValid' check will catch it immediately.
-            if (!isConfigValid) {
-                // If the check failed outside the component, display the error it caught
-                throw new Error("Vercel Environment Variables Missing or Not Loaded. Please confirm all 6 REACT_APP_ variables are set in Vercel.");
-            }
-
             const app = initializeApp(firebaseConfig);
             const auth = getAuth(app);
             const firestore = getFirestore(app);
@@ -341,7 +311,7 @@ export default function App() {
                     // Attempt to determine mode if sessionCode is present from previous session
                     if (sessionCode) {
                         setLoading(true);
-                        // Using try-catch here to gracefully handle Firebase errors if keys are bad
+                        // Using try-catch here to gracefully handle Firestore errors
                         try {
                             // Check if a valid Firestore instance exists before calling getDoc
                             if (firestore) {
@@ -354,7 +324,7 @@ export default function App() {
                             }
                         } catch (e) {
                              console.error("Error during session check:", e);
-                             // If session check fails (often due to bad API key), clear session and let the user re-enter
+                             // If session check fails (often due to bad API key or rules), clear session and let the user re-enter
                              setSessionCode(null);
                              localStorage.removeItem('lf_session_code');
                         }
@@ -367,8 +337,7 @@ export default function App() {
             return () => unsubscribe();
         } catch (e) {
             console.error("Firebase init failed:", e);
-            // This error is now caught by the UI and should clearly show the environment variable issue.
-            setError(`${e.message || "Unknown Initialization Error."} Ensure all 6 REACT_APP_ variables are correctly set and redeploy.`);
+            setError(`Firebase init failed: ${e.message || "Unknown error."}`);
             setLoading(false);
         }
     }, []);
@@ -546,7 +515,7 @@ export default function App() {
             {/* --- MAIN GRID LAYOUT --- */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                /* COLUMN 1: Ship Details (Editable by GM) */
+                {/* COLUMN 1: Ship Details (Editable by GM) */}
                 <div className="lg:col-span-1 space-y-6">
                     <div className="p-6 bg-gray-800 rounded-xl shadow-2xl border-2 border-teal-500/30 space-y-4">
                         <h2 className="text-2xl font-extrabold flex items-center text-teal-400 border-b border-teal-500/50 pb-2 font-mono">
@@ -595,7 +564,7 @@ export default function App() {
                     </div>
                 </div>
 
-                /* COLUMN 2 & 3: Roster or Player Sheet/Dice Roller */
+                {/* COLUMN 2 & 3: Roster or Player Sheet/Dice Roller */}
                 <div className="lg:col-span-2 space-y-6">
 
                     {mode === 'GM' ? (
