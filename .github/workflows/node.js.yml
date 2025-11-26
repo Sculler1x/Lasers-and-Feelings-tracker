@@ -26,11 +26,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
+          # --- CHANGE: Remove cache checking to resolve lock file error ---
           cache: 'npm'
+          cache-dependency-path: './package.json' # Forces cache to use package.json, resolving the warning
+          # ---------------------------------------------------------------
 
       # 3. Install dependencies (React, Firebase, Parcel, etc.)
       - name: Install dependencies
-        run: npm install
+        run: npm install # This will perform a fresh install as no lock file is present
 
       # 4. Run the build command (creates the /dist folder)
       - name: Build site
