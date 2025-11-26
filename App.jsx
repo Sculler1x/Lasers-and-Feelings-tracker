@@ -9,21 +9,45 @@ import { AlertTriangle, Zap, Heart, RefreshCw, Loader, Ship, User, Globe, Code, 
 // NOTE: We update this to match your actual Firebase Project ID for path consistency.
 const appId = 'lasers-and-feelings-685e4'; // Your Firebase Project ID
 
-// === START OF REQUIRED PASTE AREA ===
-// PASTE THE CONTENT OF YOUR FIREBASE CONFIGURATION OBJECT HERE. 
-// Do NOT include the "const firebaseConfig =" part.
-const firebaseConfig = {
-    // PASTE YOUR REAL KEYS HERE!
+// === SAFE FIREBASE CONFIGURATION READER ===
+// This function reads the environment variables safely without crashing the browser.
+function getFirebaseConfig() {
+    // If running in a Node environment (like Vercel build step), use process.env
+    // Otherwise, assume the values are undefined.
+    const env = typeof process !== 'undefined' ? process.env : {};
+
+    const config = {
+        apiKey: env.REACT_APP_API_KEY, 
+        authDomain: env.REACT_APP_AUTH_DOMAIN,
+        projectId: env.REACT_APP_PROJECT_ID,
+        storageBucket: env.REACT_APP_STORAGE_BUCKET,
+        messagingSenderId: env.REACT_APP_MESSAGING_SENDER_ID,
+        appId: env.REACT_APP_APP_ID,
+    };
     
-  apiKey: "AIzaSyA-42tUYSz40xzLtw3gQMIlBbWYkb0qHXY",
-  authDomain: "lasers-and-feelings-685e4.firebaseapp.com",
-  projectId: "lasers-and-feelings-685e4",
-  storageBucket: "lasers-and-feelings-685e4.firebasestorage.app",
-  messagingSenderId: "332708070784",
-  appId: "1:332708070784:web:494e23e6fa88a6dd072d65",
-  measurementId: "G-TSFRCBHZHY"
-};
-// === END OF REQUIRED PASTE AREA ===
+    // Check if the necessary keys were successfully injected by Vercel
+    if (!config.apiKey || !config.projectId) {
+        // If they are not, Vercel failed to inject them, so we throw a user-friendly error.
+        throw new Error("Vercel Environment Variables Missing or Not Loaded. Please confirm all 6 REACT_APP_ variables are set in Vercel.");
+    }
+    return config;
+}
+
+// Global variable access point (must be outside the component)
+let firebaseConfig = {};
+let isConfigValid = false;
+
+try {
+    firebaseConfig = getFirebaseConfig();
+    isConfigValid = true;
+} catch (e) {
+    // If getFirebaseConfig fails, set the error state globally for the component to pick up
+    console.error("Critical Firebase Config Error:", e.message);
+    isConfigValid = false;
+    // We intentionally ignore the specific error content here as it will be caught by React
+}
+// --- END SAFE FIREBASE CONFIGURATION READER ---
+
 
 const initialAuthToken = null; 
 
@@ -243,7 +267,7 @@ const DiceRoller = React.memo(({ character, updateRollState }) => {
                         ))}
                     </div>
                     <p className="text-lg font-semibold border-b border-white/30 pb-2 mb-2">Successes: {rollResult.successes}</p>
-                    <p className="base italic">{rollResult.message}</p>
+                    <p className="text-base italic">{rollResult.message}</p>
                 </div>
             )}
         </div>
@@ -298,6 +322,13 @@ export default function App() {
         }
 
         try {
+            // CRITICAL CHECK: If the Vercel build failed to inject the environment variables, 
+            // the 'isConfigValid' check will catch it immediately.
+            if (!isConfigValid) {
+                // If the check failed outside the component, display the error it caught
+                throw new Error("Vercel Environment Variables Missing or Not Loaded. Please confirm all 6 REACT_APP_ variables are set in Vercel.");
+            }
+
             const app = initializeApp(firebaseConfig);
             const auth = getAuth(app);
             const firestore = getFirestore(app);
@@ -336,8 +367,8 @@ export default function App() {
             return () => unsubscribe();
         } catch (e) {
             console.error("Firebase init failed:", e);
-            // This error often means the authDomain is missing or misconfigured in the host environment.
-            setError("Firebase Auth Configuration Missing: Double-check your `authDomain` is set correctly in `firebaseConfig` and that Firebase Authentication is enabled in your project.");
+            // This error is now caught by the UI and should clearly show the environment variable issue.
+            setError(`${e.message || "Unknown Initialization Error."} Ensure all 6 REACT_APP_ variables are correctly set and redeploy.`);
             setLoading(false);
         }
     }, []);
@@ -515,7 +546,7 @@ export default function App() {
             {/* --- MAIN GRID LAYOUT --- */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                {/* COLUMN 1: Ship Details (Editable by GM) */}
+                /* COLUMN 1: Ship Details (Editable by GM) */
                 <div className="lg:col-span-1 space-y-6">
                     <div className="p-6 bg-gray-800 rounded-xl shadow-2xl border-2 border-teal-500/30 space-y-4">
                         <h2 className="text-2xl font-extrabold flex items-center text-teal-400 border-b border-teal-500/50 pb-2 font-mono">
@@ -564,7 +595,7 @@ export default function App() {
                     </div>
                 </div>
 
-                {/* COLUMN 2 & 3: Roster or Player Sheet/Dice Roller */}
+                /* COLUMN 2 & 3: Roster or Player Sheet/Dice Roller */
                 <div className="lg:col-span-2 space-y-6">
 
                     {mode === 'GM' ? (
