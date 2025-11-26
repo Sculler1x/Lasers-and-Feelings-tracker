@@ -12,14 +12,13 @@ const appId = 'lasers-and-feelings-685e4'; // Your Firebase Project ID
 // === HARDCODED FIREBASE CONFIGURATION (TROUBLESHOOTING ONLY) ===
 // This configuration bypasses the Vercel environment variable injection process.
 const firebaseConfig = {
-    // These keys were provided by the user in a previous step
-    apiKey: "AIzaSyA-42tUYSz40xzLtw3gQMIlBbWYkb0qHXY",
-    authDomain: "lasers-and-feelings-685e4.firebaseapp.com",
-    projectId: "lasers-and-feelings-685e4",
-    storageBucket: "lasers-and-feelings-685e4.firebasestorage.app",
-    messagingSenderId: "332708070784",
-    appId: "1:332708070784:web:494e23e6fa88a6dd072d65",
-    // Ensure all 6 required fields are present
+    // These fields rely on Vercel correctly reading the Environment Variables set in the UI
+    apiKey: process.env.REACT_APP_API_KEY, 
+    authDomain: process.env.REACT_APP_AUTH_DOMAIN,
+    projectId: process.env.REACT_APP_PROJECT_ID,
+    storageBucket: process.env.REACT_APP_STORAGE_BUCKET,
+    messagingSenderId: process.env.REACT_APP_MESSAGING_SENDER_ID,
+    appId: process.env.REACT_APP_APP_ID,
 };
 // === END HARDCODED CONFIGURATION ===
 
