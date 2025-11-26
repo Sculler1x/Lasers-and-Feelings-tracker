@@ -21,19 +21,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Set up Node.js environment
+      # 2. Set up Node.js environment (Fixed lock file issue)
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          # --- CHANGE: Remove cache checking to resolve lock file error ---
           cache: 'npm'
-          cache-dependency-path: './package.json' # Forces cache to use package.json, resolving the warning
-          # ---------------------------------------------------------------
+          cache-dependency-path: './package.json'
 
       # 3. Install dependencies (React, Firebase, Parcel, etc.)
       - name: Install dependencies
-        run: npm install # This will perform a fresh install as no lock file is present
+        run: npm install
 
       # 4. Run the build command (creates the /dist folder)
       - name: Build site
@@ -43,9 +41,9 @@ jobs:
       - name: Deploy to Firebase
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          # --- CHANGE: Using the JSON Service Account Secret ---
+          # --- CRITICAL FIX: Pass JSON secret directly as service account ---
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_CREDENTIALS }}' # Uses the new JSON secret
+          firebaseServiceAccount: '${{ secrets.FIREBASE_CREDENTIALS }}' # Uses the entire JSON content
           projectId: lasers-and-feelings-685e4 # Your specific project ID
           channelId: live
           target: hosting
